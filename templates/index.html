@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1 class="mt-4">Главная</h1>
+<div class="dashboard">
+    <canvas id="assetsChart" class="pie-chart"></canvas>
+</div>
+<div id="monthly-summary" class="mt-4 row">
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Доходы</div>
+            <div class="card-body">
+                <h5 class="card-title"><span id="income-amount">0</span> рублей</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-header">Расходы</div>
+            <div class="card-body">
+                <h5 class="card-title"><span id="expense-amount">0</span> рублей</h5>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/dashboard_data')
+            .then(response => response.json())
+            .then(data => {
+                createPieChart('assetsChart', 'Активы и накопления', data.labels, data.data, data.total_balance);
+            });
+
+        fetch('/current_month_summary')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('income-amount').textContent = data.income.toFixed(2);
+				document.getElementById('expense-amount').textContent = Math.abs(data.expense).toFixed(2);
+            });
+
+        fetchFilteredTransactions();
+
+        const headers = document.querySelectorAll('.sortable');
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                const field = this.dataset.field;
+                toggleDropdown(field);
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            const isClickInside = event.target.closest('.filter-dropdown, .sortable');
+            if (!isClickInside) {
+                document.querySelectorAll('.filter-dropdown').forEach(dropdown => dropdown.classList.add('d-none'));
+            }
+        });
+    });
+
+function fetchFilteredTransactions(sortField = 'date', filters = {}) {
+    const params = new URLSearchParams(filters);
+    params.append('sort', sortField);
+
+    fetch('/get_transactions?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+                const tableBody = document.getElementById('transactions-table-body');
+                tableBody.innerHTML = '';
+                data.forEach(transaction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${transaction[0]}</td>
+                        <td>${transaction[1]}</td>
+                        <td>${transaction[2]}</td>
+                        <td>${transaction[3]}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+    }
+
+    function toggleDropdown(field) {
+        document.querySelectorAll('.filter-dropdown').forEach(dropdown => dropdown.classList.add('d-none'));
+        document.getElementById(`filter-${field}`).classList.toggle('d-none');
+    }
+
+    function applyFilter(field) {
+        const value = document.querySelector(`#filter-${field} select`).value;
+        const filters = {};
+        if (value) {
+            filters[field] = value;
+        }
+        fetchFilteredTransactions('date', filters);
+    }
+</script>
+<h2 class="mt-4">История транзакций</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="sortable" data-field="type">Тип
+                <div id="filter-type" class="filter-dropdown d-none">
+                    <select onchange="applyFilter('type')">
+                        <option value="">Все</option>
+                        <option value="Доход">Доход</option>
+                        <option value="Расход">Расход</option>
+                    </select>
+                </div>
+            </th>
+            <th class="sortable" data-field="category">Категория
+                <div id="filter-category" class="filter-dropdown d-none">
+                    <select onchange="applyFilter('category')">
+                        <option value="">Все</option>
+                        {% for category in categories %}
+                        <option value="{{ category[0] }}">{{ category[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </th>
+            <th class="sortable" data-field="amount">Сумма
+                <div id="filter-amount" class="filter-dropdown d-none">
+                    <input type="number" id="min-amount" placeholder="Мин" class="form-control mb-2" onchange="applyFilter('min_amount')">
+                    <input type="number" id="max-amount" placeholder="Макс" class="form-control" onchange="applyFilter('max_amount')">
+                </div>
+            </th>
+            <th class="sortable" data-field="date">Дата
+                <div id="filter-date" class="filter-dropdown d-none">
+                    <input type="date" id="start-date" class="form-control mb-2" onchange="applyFilter('start_date')">
+                    <input type="date" id="end-date" class="form-control" onchange="applyFilter('end_date')">
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="transactions-table-body" style="color: white;">
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction[0] }}</td>
+            <td>{{ transaction[1] }}</td>
+            <td>{{ transaction[2] }}</td>
+            <td>{{ transaction[3] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<style>
+    .filter-dropdown {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        z-index: 1000;
+    }
+    .d-none {
+        display: none;
+    }
+    .table-striped tbody tr {
+        color: white;
+    }
+</style>
+{% endblock %}

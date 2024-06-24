@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBudget</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+    }
+    .content {
+        padding: 20px;
+    }
+    .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .navbar-dark .navbar-brand {
+        color: #ffffff;
+    }
+    .navbar-dark .navbar-nav .nav-link {
+        color: #ffffff;
+    }
+    .form-control, .form-select {
+        background-color: #2c2c2c;
+        color: #ffffff;
+        border: 1px solid #4a4a4a;
+    }
+    .form-control:focus, .form-select:focus {
+        background-color: #2c2c2c;
+        color: #ffffff;
+        border-color: #4a4a4a;
+    }
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 400px;
+    }
+    .pie-chart {
+        width: 300px;
+        height: 300px;
+    }
+    .chart-text {
+        color: #ffffff;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    
+    /* Новые стили для таблицы и её элементов */
+    .table {
+        color: white; /* Устанавливаем белый цвет текста */
+    }
+    
+    .table th {
+        color: white; /* Устанавливаем белый цвет текста для заголовков */
+    }
+    
+    .table td {
+        color: white; /* Устанавливаем белый цвет текста для ячеек */
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="/">MyBudget</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('add_income', user_id=user_id) }}">Добавить доход</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('add_expense', user_id=user_id) }}">Добавить расход</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('add_asset', user_id=user_id) }}">Управление активами</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='charts.js') }}"></script>
+</body>
+</html>

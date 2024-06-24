@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1 class="mt-4">Дашборд</h1>
+<canvas id="assetsChart"></canvas>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/get_dashboard_data')
+            .then(response => response.json())
+            .then(data => {
+                createPieChart('assetsChart', 'Активы и накопления', data.labels, data.data);
+            });
+    });
+</script>
+{% endblock %}

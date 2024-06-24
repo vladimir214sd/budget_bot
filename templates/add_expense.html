@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1 class="mt-4">Добавить расход</h1>
+<form method="post" action="{{ url_for('add_expense') }}">
+    <div class="mb-3">
+        <label for="category" class="form-label">Категория</label>
+        <select class="form-select" id="category" name="category" required>
+            <option value="Аренда жилья">🏠 Аренда жилья</option>
+            <option value="Путешествия">✈️ Путешествия</option>
+            <option value="Рестораны, кафе, фастфуд">🍔 Рестораны, кафе, фастфуд</option>
+            <option value="Одежда, обувь">👗 Одежда, обувь</option>
+            <option value="Суп-ты, магазины у дома">🛒 Суп-ты, магазины у дома</option>
+            <option value="Расходы на детей">🧒 Расходы на детей</option>
+            <option value="Мед. Услуги + аптеки">💊 Мед. Услуги + аптеки</option>
+            <option value="Подарки себе, развлеч">🎉 Подарки себе, развлеч</option>
+            <option value="Подарки другим людям">🎁 Подарки другим людям</option>
+            <option value="Машина + транспорт">🚗 Машина + транспорт</option>
+            <option value="Образование">📚 Образование</option>
+            <option value="Красота, косметика">💅 Красота, косметика</option>
+            <option value="Спорт">🏋️ Спорт</option>
+            <option value="Прочее">🔧 Прочее</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Сумма</label>
+        <input type="number" class="form-control" id="amount" name="amount" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить расход</button>
+    {% if error %}
+    <div class="alert alert-danger mt-3" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+    {% if success %}
+    <div class="alert alert-success mt-3" role="alert">
+        Расход успешно добавлен!
+    </div>
+    {% endif %}
+</form>
+{% endblock %}
